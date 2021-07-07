@@ -1,9 +1,18 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { Document } from "mongoose";
-export interface Jogador extends Document {
-    readonly telefoneCelular: string;
-    readonly email: string;
+export class Jogador extends Document {
+    @ApiProperty()
+    telefoneCelular: string;
+
+    @ApiProperty()
+    email: string;
+
+    @ApiProperty()
     nome: string;
+
     ranking: string;
+
     posicaoRanking: number;
+
     urlFotoJogador: string;
 }
