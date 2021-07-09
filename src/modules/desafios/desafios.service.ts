@@ -1,8 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CategoriasService } from '../categorias/categorias.service';
 import { JogadoresService } from '../jogadores/jogadores.service';
+import { AtualizarDesafioDto } from './dtos/atualizar-desafio.dto';
 import { CriarDesafioDto } from './dtos/criar-desafio.dto';
 import { DesafioStatus } from './interfaces/desafio-status.enum';
 import { Desafio } from './interfaces/desafio.interface';
@@ -13,7 +14,7 @@ export class DesafiosService {
     constructor(
         @InjectModel("Desafio") private readonly desafioModel: Model<Desafio>,
         private readonly categoriasService: CategoriasService,
-        private readonly jogadoresService: JogadoresService,
+        private readonly jogadoresService: JogadoresService
     ) { }
 
     async criarDesafio(criarDesafioDto: CriarDesafioDto): Promise<Desafio> {
@@ -35,7 +36,7 @@ export class DesafiosService {
         }
 
         const desafioDesafioCriado = new this.desafioModel({
-            dataHoraDesafio,
+            dataHoraDesafio: dataHoraDesafio,
             solicitante,
             categoria: categoriaSolicitante,
             jogadores,
@@ -52,5 +53,46 @@ export class DesafiosService {
             .populate("solicitante")
             // .populate("partida")
             .exec()
+    }
+
+    async consultarDesafiosDeUmJogador(idJogador: string): Promise<Desafio[]> {
+        return this.desafioModel
+            .find()
+            .populate("jogadores")
+            .populate("solicitante")
+            // .populate("partida")
+            .where("jogadores")
+            .in([idJogador])
+            .exec()
+    }
+
+    async atualizarDesafio(idDesafio: string, atualizarDesafioDto: AtualizarDesafioDto): Promise<void> {
+        const { status, dataHoraResposta } = atualizarDesafioDto;
+
+        const desafioEncontrado = await this.desafioModel.findOne({ _id: idDesafio }).exec();
+
+        if (!desafioEncontrado) {
+            throw new BadRequestException(`Desafio: ${idDesafio} não encontrado!`);
+        }
+
+        if (
+            !(<string[]>Object.values(DesafioStatus)).includes(status) ||
+            status === DesafioStatus.PENDENTE ||
+            status === DesafioStatus.REALIZADO
+        ) {
+            throw new BadRequestException(`Status: ${status} não permitido para atualização do desafio`);
+        }
+
+        await this.desafioModel.updateOne({ _id: idDesafio }, { $set: { status, dataHoraResposta } }).exec();
+    }
+
+    async deletarDesafio(idDesafio: string): Promise<void> {
+        const desafioEncontrado = await this.desafioModel.findOne({ _id: idDesafio }).exec();
+
+        if (!desafioEncontrado) {
+            throw new BadRequestException(`Desafio: ${idDesafio} não encontrado!`);
+        }
+
+        await this.desafioModel.updateOne({ _id: idDesafio }, { $set: { status: DesafioStatus.CANCELADO } }).exec();
     }
 }

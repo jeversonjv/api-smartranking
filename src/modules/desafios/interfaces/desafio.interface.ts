@@ -5,7 +5,7 @@ import { DesafioStatus } from "./desafio-status.enum";
 
 export interface Desafio extends Document {
     dataHoraDesafio: Date;
-    status: DesafioStatus;
+    status: DesafioStatus | string;
     dataHoraSolicitacao: Date;
     dataHoraResposta: Date;
     solicitante: Jogador | string;

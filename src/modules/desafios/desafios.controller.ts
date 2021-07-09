@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ValidacaoParametrosPipe } from 'src/common/pipes/validacao-parametros.pipe';
 import { DesafiosService } from './desafios.service';
+import { AtualizarDesafioDto } from './dtos/atualizar-desafio.dto';
 import { CriarDesafioDto } from './dtos/criar-desafio.dto';
 import { Desafio } from './interfaces/desafio.interface';
 
@@ -21,5 +23,31 @@ export class DesafiosController {
     @Get()
     async consultarTodosDesafios(): Promise<Desafio[]> {
         return await this.desafiosService.consultarTodosDesafios();
+    }
+
+    @Get("/:idJogador")
+    async consultarDesafiosDeUmJogador(
+        @Param("idJogador", ValidacaoParametrosPipe) idJogador: string
+    ): Promise<Desafio[]> {
+        return await this.desafiosService.consultarDesafiosDeUmJogador(idJogador);
+    }
+
+    @Put("/:idDesafio")
+    @UsePipes(ValidationPipe)
+    @HttpCode(204)
+    async atualizarDesafio(
+        @Param("idDesafio", ValidacaoParametrosPipe) idDesafio: string,
+        @Body() atualizarDesafioDto: AtualizarDesafioDto
+    ): Promise<void> {
+        await this.desafiosService.atualizarDesafio(idDesafio, atualizarDesafioDto);
+    }
+
+    @Delete("/:idDesafio")
+    @UsePipes(ValidationPipe)
+    @HttpCode(204)
+    async deletarDesafio(
+        @Param("idDesafio", ValidacaoParametrosPipe) idDesafio: string
+    ): Promise<void> {
+        await this.desafiosService.deletarDesafio(idDesafio);
     }
 }

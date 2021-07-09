@@ -7,9 +7,11 @@ export class CriarDesafioDto {
     @IsDateString()
     dataHoraDesafio: Date;
 
+    @ApiProperty()
     @IsNotEmpty()
     solicitante: string;
 
+    @ApiProperty()
     @IsArray()
     @ArrayMinSize(2)
     @ArrayMaxSize(2)
