@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsDateString, IsNotEmpty } from "class-validator";
-import { Jogador } from "src/modules/jogadores/interfaces/jogador.interface";
 
 export class CriarDesafioDto {
     @ApiProperty()
@@ -9,10 +8,10 @@ export class CriarDesafioDto {
     dataHoraDesafio: Date;
 
     @IsNotEmpty()
-    solicitante: Jogador;
+    solicitante: string;
 
     @IsArray()
     @ArrayMinSize(2)
     @ArrayMaxSize(2)
-    jogadores: Array<Jogador>
+    jogadores: Array<string>
 }

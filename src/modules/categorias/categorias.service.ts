@@ -74,4 +74,18 @@ export class CategoriasService {
         await this.categoriaModel.updateOne({ categoria }, { $set: categoriaEncontrada }).exec();
     }
 
+    async verificarJogadorTemCategoria(idJogador: string): Promise<Categoria> {
+        const jogadorEncontradoCategoria = await this.categoriaModel
+            .find()
+            .where("jogadores")
+            .in([idJogador])
+            .exec();
+
+        if (jogadorEncontradoCategoria.length == 0) {
+            throw new BadRequestException(`Jogador: ${idJogador} não possui categoria`);
+        }
+
+        return jogadorEncontradoCategoria[0];
+    }
+
 }
