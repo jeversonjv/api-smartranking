@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { JogadoresModule } from './jogadores/jogadores.module';
+import { JogadoresModule } from './modules/jogadores/jogadores.module';
 import { ConfigModule } from '@nestjs/config';
-import { CategoriasModule } from './categorias/categorias.module';
+import { CategoriasModule } from './modules/categorias/categorias.module';
 
 @Module({
 	imports: [
