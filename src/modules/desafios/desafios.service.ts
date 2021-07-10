@@ -3,16 +3,18 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CategoriasService } from '../categorias/categorias.service';
 import { JogadoresService } from '../jogadores/jogadores.service';
+import { AtribuirDesafioPartidaDto } from './dtos/atribuir-desafio-partida.dto';
 import { AtualizarDesafioDto } from './dtos/atualizar-desafio.dto';
 import { CriarDesafioDto } from './dtos/criar-desafio.dto';
 import { DesafioStatus } from './interfaces/desafio-status.enum';
-import { Desafio } from './interfaces/desafio.interface';
+import { Desafio, Partida } from './interfaces/desafio.interface';
 
 @Injectable()
 export class DesafiosService {
 
     constructor(
         @InjectModel("Desafio") private readonly desafioModel: Model<Desafio>,
+        @InjectModel("Partida") private readonly partidaModel: Model<Partida>,
         private readonly categoriasService: CategoriasService,
         private readonly jogadoresService: JogadoresService
     ) { }
@@ -51,7 +53,7 @@ export class DesafiosService {
             .find()
             .populate("jogadores")
             .populate("solicitante")
-            // .populate("partida")
+            .populate("partida")
             .exec()
     }
 
@@ -60,7 +62,7 @@ export class DesafiosService {
             .find()
             .populate("jogadores")
             .populate("solicitante")
-            // .populate("partida")
+            .populate("partida")
             .where("jogadores")
             .in([idJogador])
             .exec()
@@ -69,11 +71,7 @@ export class DesafiosService {
     async atualizarDesafio(idDesafio: string, atualizarDesafioDto: AtualizarDesafioDto): Promise<void> {
         const { status, dataHoraResposta } = atualizarDesafioDto;
 
-        const desafioEncontrado = await this.desafioModel.findOne({ _id: idDesafio }).exec();
-
-        if (!desafioEncontrado) {
-            throw new BadRequestException(`Desafio: ${idDesafio} não encontrado!`);
-        }
+        await this.validarDesafioExiste(idDesafio);
 
         if (
             !(<string[]>Object.values(DesafioStatus)).includes(status) ||
@@ -87,12 +85,46 @@ export class DesafiosService {
     }
 
     async deletarDesafio(idDesafio: string): Promise<void> {
+        await this.validarDesafioExiste(idDesafio);
+
+        await this.desafioModel.updateOne({ _id: idDesafio }, { $set: { status: DesafioStatus.CANCELADO } }).exec();
+    }
+
+    async atribuirPartida(idDesafio: string, atribuirDesafioPartidaDto: AtribuirDesafioPartidaDto): Promise<void> {
+        const { resultado, def } = atribuirDesafioPartidaDto;
+
+        const desafioEncontrado = await this.validarDesafioExiste(idDesafio);
+
+        if (desafioEncontrado.status === DesafioStatus.REALIZADO) {
+            throw new BadRequestException("Partida já finalizada!");
+        }
+
+        if (!desafioEncontrado.jogadores.includes(def)) {
+            throw new BadRequestException("Jogador vencedor não se encontra no desafio!");
+        }
+
+        let partidaCriada = new this.partidaModel({
+            resultado,
+            def,
+            jogadores: desafioEncontrado.jogadores,
+            categoria: desafioEncontrado.categoria
+        });
+
+        partidaCriada = await partidaCriada.save();
+
+        await this.desafioModel.updateOne(
+            { _id: idDesafio },
+            { $set: { partida: partidaCriada, status: DesafioStatus.REALIZADO } }
+        ).exec();
+    }
+
+    private async validarDesafioExiste(idDesafio: string): Promise<Desafio> {
         const desafioEncontrado = await this.desafioModel.findOne({ _id: idDesafio }).exec();
 
         if (!desafioEncontrado) {
             throw new BadRequestException(`Desafio: ${idDesafio} não encontrado!`);
         }
 
-        await this.desafioModel.updateOne({ _id: idDesafio }, { $set: { status: DesafioStatus.CANCELADO } }).exec();
+        return desafioEncontrado;
     }
 }

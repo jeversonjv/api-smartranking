@@ -18,7 +18,7 @@ export interface Partida extends Document {
     categoria: string;
     jogadores: Array<Jogador | string>;
     def: Jogador;
-    resultador: Array<Resultado>;
+    resultado: Array<Resultado>;
 }
 
 export interface Resultado {
