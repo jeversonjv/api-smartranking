@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Param, Post, Put, UsePipes, Validation
 import { CategoriasService } from './categorias.service';
 import { AtualizarCategoriaDto } from './dtos/atualizar-categoria.dto';
 import { CriarCategoriaDto } from './dtos/criar-categoria.dto';
-import { Categoria } from './intefaces/categoria.interface';
+import { Categoria } from './interfaces/categoria.interface';
 
 @Controller('api/v1/categorias')
 export class CategoriasController {

@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from "class-validator";
-import { Evento } from "../intefaces/categoria.interface";
+import { Evento } from "../interfaces/categoria.interface";
 
 export class CriarCategoriaDto {
 
