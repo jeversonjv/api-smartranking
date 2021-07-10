@@ -29,6 +29,7 @@
     "@nestjs/swagger": "^4.8.2",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
+    "moment-timezone": "^0.5.33",
     "mongoose": "^5.13.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

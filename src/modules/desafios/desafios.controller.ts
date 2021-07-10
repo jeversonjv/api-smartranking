@@ -52,7 +52,7 @@ export class DesafiosController {
         await this.desafiosService.deletarDesafio(idDesafio);
     }
 
-    @Post("/:idDesafio/atribuirPartida")
+    @Post("/:idDesafio/partida")
     @UsePipes(ValidationPipe)
     @HttpCode(204)
     async atribuirPartida(

@@ -2,11 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+import * as momentTimezone from "moment-timezone";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
-    // app.useGlobalFilters(new AllExceptionsFilter());
+    app.useGlobalFilters(new AllExceptionsFilter());
 
     const config = new DocumentBuilder()
         .setTitle('Smart Ranking')
@@ -16,6 +17,12 @@ async function bootstrap() {
         .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
+
+    Date.prototype.toString = (): any => {
+        return momentTimezone(this)
+            .tz("America/Sao_Paulo")
+            .format("YYYY-MM-DD HH:mm:ss");
+    }
 
     await app.listen(8080);
 }

@@ -39,6 +39,7 @@ export class DesafiosService {
 
         const desafioDesafioCriado = new this.desafioModel({
             dataHoraDesafio: dataHoraDesafio,
+            dataHoraSolicitacao: new Date(),
             solicitante,
             categoria: categoriaSolicitante,
             jogadores,
