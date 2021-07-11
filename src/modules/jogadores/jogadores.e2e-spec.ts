@@ -13,7 +13,7 @@ import {
 let app: INestApplication;
 let service: JogadoresService;
 
-beforeEach(async () => {
+beforeAll(async () => {
     const module = await Test.createTestingModule({
         imports: [
             rootMongooseTestModule(),
@@ -37,18 +37,16 @@ afterAll(async () => {
 
 describe("GET /api/v1/jogadores", () => {
     it("Deve retornar um array de jogadores com um jogador", async () => {
-        // await service.criarJogador({
-        //     "nome": "Jeverson Gonçalves",
-        //     "email": "jeversontp@gmail.com",
-        //     "telefoneCelular": "35123456789"
-        // });
+        await service.criarJogador({
+            "nome": "Jeverson Gonçalves",
+            "email": "jeversontp@gmail.com",
+            "telefoneCelular": "35123456789"
+        });
 
-        // const { body } = await request(app.getHttpServer())
-        //     .get("/api/v1/jogadores")
-        //     .expect(200)
-        //     .expect('Content-Type', /json/)
-
-        const body = [1];
+        const { body } = await request(app.getHttpServer())
+            .get("/api/v1/jogadores")
+            .expect(200)
+            .expect('Content-Type', /json/);
 
         expect(body).toHaveLength(1);
     });
